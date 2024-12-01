@@ -2,11 +2,16 @@ import React, { useRef, useState } from 'react'
 import { closestCorners, DndContext, PointerSensor, TouchSensor, useSensor, useSensors } from '@dnd-kit/core';
 import ImgList from '../components/ImgList';
 import { arrayMove, horizontalListSortingStrategy, rectSortingStrategy, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { PageNoPostion } from '../utils/PageNoPosition';
 
 const ImageConverter = () => {
 
     const fileInput = useRef(null)
     const [files, setFiles] = useState([]);
+    const [isAddPageNo, setIsAddPageNo] = useState(false);
+    const [pageNoData, setPageNoData] = useState({ startingPageNo: 1, pageNoPosition: PageNoPostion.TOP_LEFT })
+    const pagePosition = Object.keys(PageNoPostion);
+    console.log(pageNoData)
 
     const onChange = async e => {
         const newFiles = Array.from(e.target.files).map((file, index) => ({
@@ -15,7 +20,7 @@ const ImageConverter = () => {
         }));
         setFiles(prevFiles => [...prevFiles, ...newFiles]);
     }
-    console.log(files)
+
 
     const handleDragEnd = event => {
         const { active, over } = event;
@@ -66,11 +71,37 @@ const ImageConverter = () => {
                         multiple={true}
                         accept='image/*'
                     />
-
+                    {/* Send images to backend  */}
                     {
                         files.length > 0 && <div className=' text-white text-2xl font-bold  cursor-pointer px-4 py-2 bg-green-400 rounded-lg '> Upload</div>
                     }
+
+
                 </div>
+
+                {/* add page no. */}
+                { files.length > 0 && <div className='flex flex-col justify-center items-center gap-2'>
+                    <div><input type='checkbox' defaultChecked={isAddPageNo} onChange={() => setIsAddPageNo(!isAddPageNo)} /> Add Page no </div>
+
+                    { isAddPageNo && <>
+                        <div className='flex w-1/4 justify-between'>
+                            <label htmlFor=' startingPageNo'>Starting Page No:</label>
+                            <input type="number" placeholder='Starting page No' onChange={(e) => setPageNoData(prev => ({ ...prev, startingPageNo: e.target.value }))} value={pageNoData.startingPageNo} />
+                        </div>
+                        <div className='flex w-1/4 justify-between'>
+                            <label htmlFor='Page_No_Position'>Page No Position:</label>
+                            <select onChange={(e) => setPageNoData(prev => ({ ...prev, pageNoPosition: PageNoPostion[e.target.value] }))} >
+                                {
+                                    pagePosition.map((position, index) => <option key={index} value={position}>
+                                        {position}
+                                    </option>)
+                                }
+                            </select>
+                        </div>
+                    </>
+                    }
+                </div>}
+
                 {/* preview the images and order them */}
                 {files.length > 0 && <div className='flex justify-center items-center '>
 
@@ -95,7 +126,7 @@ const ImageConverter = () => {
 
                 </div>
                 }
-                {/* Send images to backend  */}
+
 
 
             </div>
