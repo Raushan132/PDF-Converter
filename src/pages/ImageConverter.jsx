@@ -10,7 +10,11 @@ const ImageConverter = () => {
     const [files, setFiles] = useState([]);
     const [isAddPageNo, setIsAddPageNo] = useState(false);
     const [pageNoData, setPageNoData] = useState({ startingPageNo: 1, pageNoPosition: PageNoPostion.TOP_LEFT })
+    const [dragActive, setDragActive] = useState(false);
+    const[dropableStyle,setDropableStyle] = useState('-z-10')
+
     const pagePosition = Object.keys(PageNoPostion);
+
     console.log(pageNoData)
 
     const onChange = async e => {
@@ -53,10 +57,47 @@ const ImageConverter = () => {
         useSensor(TouchSensor)
     )
 
+
+    // handle Drag and drop from drives
+    const handleDragEnterOutSideDrop = (e)=>{
+        e.preventDefault();
+        e.stopPropagation();
+        if(dropableStyle == '-z-10'){
+            setDropableStyle('z-10')
+        }
+
+    }
+    const handleDrag = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (e.type === "dragenter" || e.type === "dragover") {
+            setDragActive(true);
+        } else if (event.type === "dragleave") {
+            setDragActive(false);
+        }
+    }
+
+    const handleDrop = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setDragActive(false);
+
+        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+            const newFiles = Array.from(e.dataTransfer.files).map((file, index) => ({
+                id: index + files.length,
+                file,
+            }));
+            setFiles(prevFiles => [...prevFiles, ...newFiles]);
+        }
+        if(dropableStyle == 'z-10'){
+            setDropableStyle('-z-10')
+        }
+    }
+
     return (
         <>
             {/* container */}
-            <div className='flex flex-col bg-blue-400 min-h-screen gap-4 p-5'>
+            <div className='flex flex-col bg-blue-400 min-h-screen gap-4 p-5' onDragEnter={handleDragEnterOutSideDrop}>
 
                 <div className='text-3xl font-bold flex justify-center '>JPG To PDF</div>
                 <div className='text-xl flex  justify-center ' >Convert JPG/png to pdf in seconds. Easily adjust orientation and margins</div>
@@ -80,10 +121,10 @@ const ImageConverter = () => {
                 </div>
 
                 {/* add page no. */}
-                { files.length > 0 && <div className='flex flex-col justify-center items-center gap-2'>
+                {files.length > 0 && <div className='flex flex-col justify-center items-center gap-2'>
                     <div><input type='checkbox' defaultChecked={isAddPageNo} onChange={() => setIsAddPageNo(!isAddPageNo)} /> Add Page no </div>
 
-                    { isAddPageNo && <>
+                    {isAddPageNo && <>
                         <div className='flex w-1/4 justify-between'>
                             <label htmlFor=' startingPageNo'>Starting Page No:</label>
                             <input type="number" placeholder='Starting page No' onChange={(e) => setPageNoData(prev => ({ ...prev, startingPageNo: e.target.value }))} value={pageNoData.startingPageNo} />
@@ -127,6 +168,23 @@ const ImageConverter = () => {
                 </div>
                 }
 
+                {/* drag and drop event */}
+                <div
+                    onDragEnter={handleDrag}
+                    onDragLeave={handleDrag}
+                    onDragOver={handleDrag}
+                    onDrop={handleDrop}
+                    className={`w-full h-screen left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2
+                         bg-[#9d8be3f5] absolute ${dropableStyle} flex justify-center items-center
+                         font-bold text-2xl
+                         p-20
+                         `}
+                >
+                    <div className='border-2 border-gray-600  border-dashed w-full h-full flex justify-center items-center'>
+
+                        Drag and Drop Here
+                    </div>
+                </div>
 
 
             </div>
