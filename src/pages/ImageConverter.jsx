@@ -10,7 +10,7 @@ const ImageConverter = () => {
 
     const onChange = async e => {
         const newFiles = Array.from(e.target.files).map((file, index) => ({
-            id: index+files.length,
+            id: index + files.length,
             file,
         }));
         setFiles(prevFiles => [...prevFiles, ...newFiles]);
@@ -35,8 +35,8 @@ const ImageConverter = () => {
 
     }
 
-    const removeImageBtn = (id)=>{
-         setFiles(prev=>prev.filter(file=> file.id!==id));
+    const removeImageBtn = (id) => {
+        setFiles(prev => prev.filter(file => file.id !== id));
     }
 
     const getPosition = (id) => {
@@ -55,8 +55,8 @@ const ImageConverter = () => {
 
                 <div className='text-3xl font-bold flex justify-center '>JPG To PDF</div>
                 <div className='text-xl flex  justify-center ' >Convert JPG/png to pdf in seconds. Easily adjust orientation and margins</div>
-                <div className='flex justify-center '>
-                    <div onClick={() => fileInput.current.click()} className=' text-white text-2xl  cursor-pointer px-4 py-2 bg-red-400 rounded-lg'>Select Images</div>
+                <div className='flex justify-center gap-5 '>
+                    <div onClick={() => fileInput.current.click()} className=' text-white text-2xl  cursor-pointer px-4 py-2 bg-red-400 rounded-lg'>Add Images</div>
                     <input
                         type='file'
                         name='image'
@@ -66,8 +66,13 @@ const ImageConverter = () => {
                         multiple={true}
                         accept='image/*'
                     />
+
+                    {
+                        files.length > 0 && <div className=' text-white text-2xl font-bold  cursor-pointer px-4 py-2 bg-green-400 rounded-lg '> Upload</div>
+                    }
                 </div>
-              {  files.length>0 && <div className='flex justify-center items-center '>
+                {/* preview the images and order them */}
+                {files.length > 0 && <div className='flex justify-center items-center '>
 
                     <DndContext sensors={sensors} onDragEnd={handleDragEnd} collisionDetection={closestCorners} >
                         <SortableContext items={files} strategy={rectSortingStrategy}>
@@ -78,7 +83,7 @@ const ImageConverter = () => {
                                         return <div key={file.id} className="">
                                             <div className=' h-5 flex justify-between px-2  rounded-full translate-y-6'>
                                                 <div className='w-5 h-5 flex justify-center items-center bg-blue-200 rounded-full'>{index + 1}</div>
-                                                <div className='text-red-500 font-bold cursor-pointer' onClick={()=>removeImageBtn(file.id)}>X</div>
+                                                <div className='text-red-500 font-bold cursor-pointer' onClick={() => removeImageBtn(file.id)}>X</div>
                                             </div>
                                             <ImgList file={file} />
                                         </div>
@@ -87,7 +92,11 @@ const ImageConverter = () => {
                             </div>
                         </SortableContext>
                     </DndContext>
-                </div>}
+
+                </div>
+                }
+                {/* Send images to backend  */}
+
 
             </div>
         </>

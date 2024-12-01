@@ -1,6 +1,6 @@
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 
 const ImgList = ({ file }) => {
 
@@ -18,12 +18,17 @@ const ImgList = ({ file }) => {
       transition,
     }
 
-    const fileUrl = URL.createObjectURL(file.file);
+    const [fileUrl, setFileUrl] = useState(null);
 
-    useEffect(() => {
-        // Cleanup the URL when the component unmounts
-        return () => URL.revokeObjectURL(fileUrl);
-    }, [fileUrl]);
+  useEffect(() => {
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setFileUrl(event.target.result); // Base64 string
+      };
+      reader.readAsDataURL(file.file);
+    }
+  }, [file]);
 
    return (
 
