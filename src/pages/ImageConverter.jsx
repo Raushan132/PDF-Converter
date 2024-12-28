@@ -3,6 +3,8 @@ import { closestCorners, DndContext, PointerSensor, TouchSensor, useSensor, useS
 import ImgList from '../components/ImgList';
 import { arrayMove, horizontalListSortingStrategy, rectSortingStrategy, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { PageNoPostion } from '../utils/PageNoPosition';
+import axios, { Axios } from 'axios';
+import { baseUrl } from '../utils/BaseUrl';
 
 const ImageConverter = () => {
 
@@ -94,6 +96,28 @@ const ImageConverter = () => {
         }
     }
 
+    const handleUploadBtn= async ()=>{
+        const formData=new FormData()
+        files.forEach(file=>  formData.append("imagesFile",file.file))
+        
+      
+        try{
+            const resp=await axios.post(`${baseUrl}/imgtopdf/generatepdf`,formData,{
+                headers: {
+                  'Content-Type': 'multipart/form-data', // Set the appropriate content type
+                },
+              })
+
+              console.log(resp.data);
+
+        }catch(error){
+            console.log("error===================",error);
+        }
+       
+
+    }
+
+
     return (
         <>
             {/* container */}
@@ -114,7 +138,7 @@ const ImageConverter = () => {
                     />
                     {/* Send images to backend  */}
                     {
-                        files.length > 0 && <div className=' text-white text-2xl font-bold  cursor-pointer px-4 py-2 bg-green-400 rounded-lg '> Upload</div>
+                        files.length > 0 && <div className=' text-white text-2xl font-bold  cursor-pointer px-4 py-2 bg-green-400 rounded-lg 'onClick={handleUploadBtn} > Upload</div>
                     }
 
 
