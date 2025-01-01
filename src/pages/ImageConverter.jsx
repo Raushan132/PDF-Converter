@@ -13,7 +13,8 @@ const ImageConverter = () => {
     const [isAddPageNo, setIsAddPageNo] = useState(false);
     const [pageNoData, setPageNoData] = useState({ startingPageNo: 1, pageNoPosition: PageNoPostion.TOP_LEFT })
     const [dragActive, setDragActive] = useState(false);
-    const[dropableStyle,setDropableStyle] = useState('-z-10')
+    const [dropableStyle, setDropableStyle] = useState('-z-10')
+    
 
     const pagePosition = Object.keys(PageNoPostion);
 
@@ -61,10 +62,10 @@ const ImageConverter = () => {
 
 
     // handle Drag and drop from drives
-    const handleDragEnterOutSideDrop = (e)=>{
+    const handleDragEnterOutSideDrop = (e) => {
         e.preventDefault();
         e.stopPropagation();
-        if(dropableStyle == '-z-10'){
+        if (dropableStyle == '-z-10') {
             setDropableStyle('z-10')
         }
 
@@ -91,29 +92,35 @@ const ImageConverter = () => {
             }));
             setFiles(prevFiles => [...prevFiles, ...newFiles]);
         }
-        if(dropableStyle == 'z-10'){
+        if (dropableStyle == 'z-10') {
             setDropableStyle('-z-10')
         }
     }
 
-    const handleUploadBtn= async ()=>{
-        const formData=new FormData()
-        files.forEach(file=>  formData.append("imagesFile",file.file))
-        
-      
-        try{
-            const resp=await axios.post(`${baseUrl}/imgtopdf/generatepdf`,formData,{
+    const handleUploadBtn = async () => {
+        const formData = new FormData()
+        files.forEach(file => formData.append("imagesFile", file.file))
+
+
+        try {
+            const resp = await axios.post(`${baseUrl}/imgtopdf/generatepdf`, formData, {
                 headers: {
-                  'Content-Type': 'multipart/form-data', // Set the appropriate content type
+                    'Content-Type': 'multipart/form-data', // Set the appropriate content type
                 },
-              })
+            })
 
-              console.log(resp.data);
+            const fileURL = window.URL.createObjectURL(new Blob([resp.data]));
+            const link = document.createElement('a');
+            link.href = fileURL;
+            link.setAttribute('download', 'generated.pdf'); // Name the file
+            document.body.appendChild(link);
+            link.click(); // Programmatically click the link to trigger download
+            document.body.removeChild(link); // Clean up
 
-        }catch(error){
-            console.log("error===================",error);
+        } catch (error) {
+            console.log("error===================", error);
         }
-       
+
 
     }
 
@@ -138,7 +145,7 @@ const ImageConverter = () => {
                     />
                     {/* Send images to backend  */}
                     {
-                        files.length > 0 && <div className=' text-white text-2xl font-bold  cursor-pointer px-4 py-2 bg-green-400 rounded-lg 'onClick={handleUploadBtn} > Upload</div>
+                        files.length > 0 && <div className=' text-white text-2xl font-bold  cursor-pointer px-4 py-2 bg-green-400 rounded-lg ' onClick={handleUploadBtn} > Upload</div>
                     }
 
 
