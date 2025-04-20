@@ -10,7 +10,7 @@ const Header = () => {
                 <nav className='flex gap-10 self-start'>
                     <Link to={'/merge'} className='font-semibold'>MERGE PDF</Link>
                     <Link className='font-semibold'>SPLIT PDF</Link>
-                    <Link className='font-semibold'>ADD PAGE NO</Link>
+                    <Link to={'/pageNo'} className='font-semibold'>ADD PAGE NO</Link>
                 </nav>
             </div>
             <div>

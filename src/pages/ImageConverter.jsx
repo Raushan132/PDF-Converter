@@ -2,8 +2,8 @@ import React, { useRef, useState } from 'react'
 import { closestCorners, DndContext, PointerSensor, TouchSensor, useSensor, useSensors } from '@dnd-kit/core';
 import ImgList from '../components/ImgList';
 import { arrayMove, horizontalListSortingStrategy, rectSortingStrategy, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { PageNoPostion } from '../utils/PageNoPosition';
-import axios, { Axios } from 'axios';
+import { PageNoPosition } from '../utils/PageNoPosition';
+import axios from 'axios';
 import { baseUrl } from '../utils/BaseUrl';
 
 const ImageConverter = () => {
@@ -11,12 +11,12 @@ const ImageConverter = () => {
     const fileInput = useRef(null)
     const [files, setFiles] = useState([]);
     const [isAddPageNo, setIsAddPageNo] = useState(false);
-    const [pageNoData, setPageNoData] = useState({ startingPageNo: 1, pageNoPosition: PageNoPostion.TOP_LEFT })
+    const [pageNoData, setPageNoData] = useState({ startingPageNo: 1, pageNoPosition: PageNoPosition.TOP_LEFT })
     const [dragActive, setDragActive] = useState(false);
     const [dropableStyle, setDropableStyle] = useState('-z-10')
     
 
-    const pagePosition = Object.keys(PageNoPostion);
+    const pagePosition = Object.keys(PageNoPosition);
 
     console.log(pageNoData)
 
@@ -164,7 +164,7 @@ const ImageConverter = () => {
                         </div>
                         <div className='flex w-1/4 justify-between'>
                             <label htmlFor='Page_No_Position'>Page No Position:</label>
-                            <select onChange={(e) => setPageNoData(prev => ({ ...prev, pageNoPosition: PageNoPostion[e.target.value] }))} >
+                            <select onChange={(e) => setPageNoData(prev => ({ ...prev, pageNoPosition: PageNoPosition[e.target.value] }))} >
                                 {
                                     pagePosition.map((position, index) => <option key={index} value={position}>
                                         {position}

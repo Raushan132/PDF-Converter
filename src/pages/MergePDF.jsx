@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react'
 import { closestCorners, DndContext, PointerSensor, TouchSensor, useSensor, useSensors } from '@dnd-kit/core';
 import ImgList from '../components/ImgList';
 import { arrayMove, horizontalListSortingStrategy, rectSortingStrategy, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { PageNoPostion } from '../utils/PageNoPosition';
+import { PageNoPosition } from '../utils/PageNoPosition';
 import axios, { Axios } from 'axios';
 import { baseUrl } from '../utils/BaseUrl';
 import PdfList from '../components/PDFList';
@@ -11,12 +11,12 @@ const MergePDF = () => {
     const fileInput = useRef(null)
     const [files, setFiles] = useState([]);
     const [isAddPageNo, setIsAddPageNo] = useState(false);
-    const [pageNoData, setPageNoData] = useState({ startingPageNo: 1, pageNoPosition: PageNoPostion.TOP_LEFT })
+    const [pageNoData, setPageNoData] = useState({ startingPageNo: 1, pageNoPosition: PageNoPosition.TOP_LEFT })
     const [dragActive, setDragActive] = useState(false);
     const [dropableStyle, setDropableStyle] = useState('-z-10')
     
 
-    const pagePosition = Object.keys(PageNoPostion);
+    const pagePosition = Object.keys(PageNoPosition);
 
     console.log(pageNoData)
 
@@ -99,16 +99,18 @@ const MergePDF = () => {
 
     const handleUploadBtn = async () => {
         const formData = new FormData()
-        files.forEach(file => formData.append("imagesFile", file.file))
+        files.forEach(file => formData.append("files", file.file))
 
 
         try {
-            const resp = await axios.post(`${baseUrl}/imgtopdf/generatepdf`, formData, {
+            const resp = await axios.post(`${baseUrl}/pdf/merge`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data', // Set the appropriate content type
                 },
+                responseType: 'blob'
             })
 
+            console.log(resp.data)
             const fileURL = window.URL.createObjectURL(new Blob([resp.data]));
             const link = document.createElement('a');
             link.href = fileURL;
@@ -183,12 +185,12 @@ const MergePDF = () => {
                                 {
                                     files.map((file, index) => {
 
-                                        return <div key={file.id} className="bg-blue-400 relative overflow-hidden h-32">
+                                        return <div key={file.id} className="relative overflow-hidden h-32">
                                             <div className=' h-5 flex absolute z-50 w-full  justify-between px-2  rounded-full '>
                                                 <div className='w-5 h-5 flex justify-center items-center bg-blue-200 rounded-full'>{index + 1}</div>
                                                 <div className='text-red-500 font-bold cursor-pointer' onClick={() => removeImageBtn(file.id)}>X</div>
                                             </div>
-                                            <PdfList file={file.file} id={file.id} />
+                                            <PdfList file={file.file} id={file.id} val={index} />
                                         </div>
                                     })
                                 }

@@ -35,6 +35,7 @@ const PdfList = ({ file,id }) => {
 
   return (
     <div style={style} ref={setNodeRef} {...attributes} {...listeners} className='bg-blue-300 text-center'>
+      
      <div style={{touchAction:"none"}} >
       {fileUrl && (
         <Document file={fileUrl} className=' '>

@@ -4,6 +4,7 @@ import Header from './components/Header'
 import { Route, Routes } from 'react-router-dom'
 import Home from './pages/Home'
 import MergePDF from './pages/MergePDF'
+import AddPageNo from './pages/AddPageNo'
 
 
 function App() {
@@ -17,7 +18,7 @@ function App() {
         <Route path="/merge" element={<MergePDF />} />
         <Route path="/image-convert" element={<ImageConverter />} />
         <Route path="/split" element={<Home />} />
-        <Route path="/pageNo" element={<Home />} />
+        <Route path="/pageNo" element={<AddPageNo />} />
        </Routes>
 
     </>
