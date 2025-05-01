@@ -164,7 +164,7 @@ const MergePDF = () => {
                         </div>
                         <div className='flex w-1/4 justify-between'>
                             <label htmlFor='Page_No_Position'>Page No Position:</label>
-                            <select onChange={(e) => setPageNoData(prev => ({ ...prev, pageNoPosition: PageNoPostion[e.target.value] }))} >
+                            <select onChange={(e) => setPageNoData(prev => ({ ...prev, pageNoPosition: PageNoPosition[e.target.value] }))} >
                                 {
                                     pagePosition.map((position, index) => <option key={index} value={position}>
                                         {position}

@@ -25,6 +25,7 @@ const PdfList = ({ file,id }) => {
   
 
   const [fileUrl, setFileUrl] = useState(null);
+  const [numPages,setNumPages] = useState(1)
 
   useEffect(() => {
     if (file && file.type === "application/pdf") {
@@ -32,14 +33,19 @@ const PdfList = ({ file,id }) => {
       setFileUrl(url);
     }
   }, [file]);
+  function onDocumentLoadSuccess({ numPages }) {
+    setNumPages(numPages);
+    console.log(numPages)
+  }
 
   return (
     <div style={style} ref={setNodeRef} {...attributes} {...listeners} className='bg-blue-300 text-center'>
       
      <div style={{touchAction:"none"}} >
       {fileUrl && (
-        <Document file={fileUrl} className=' '>
-          <Page pageNumber={1} width={100} className=' '  />
+        <Document file={fileUrl} onLoadSuccess={onDocumentLoadSuccess} className=' '>
+          <Page pageNumber={1} width={100} className=''  />
+          
         </Document>
       )}
       </div>
