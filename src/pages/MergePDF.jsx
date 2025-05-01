@@ -3,11 +3,11 @@ import { closestCorners, DndContext, PointerSensor, TouchSensor, useSensor, useS
 import ImgList from '../components/ImgList';
 import { arrayMove, horizontalListSortingStrategy, rectSortingStrategy, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { PageNoPosition } from '../utils/PageNoPosition';
-import axios from 'axios';
+import axios, { Axios } from 'axios';
 import { baseUrl } from '../utils/BaseUrl';
+import PdfList from '../components/PDFList';
 
-const ImageConverter = () => {
-
+const MergePDF = () => {
     const fileInput = useRef(null)
     const [files, setFiles] = useState([]);
     const [isAddPageNo, setIsAddPageNo] = useState(false);
@@ -99,18 +99,18 @@ const ImageConverter = () => {
 
     const handleUploadBtn = async () => {
         const formData = new FormData()
-        files.forEach(file => formData.append("imagesFile", file.file))
-        formData.append("startPageNumber",1);
-        formData.append("location","BOTTOM_LEFT")
+        files.forEach(file => formData.append("files", file.file))
 
 
         try {
-            const resp = await axios.post(`${baseUrl}/imgtopdf/generatepdf`, formData, {
+            const resp = await axios.post(`${baseUrl}/pdf/merge`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data', // Set the appropriate content type
                 },
+                responseType: 'blob'
             })
 
+            console.log(resp.data)
             const fileURL = window.URL.createObjectURL(new Blob([resp.data]));
             const link = document.createElement('a');
             link.href = fileURL;
@@ -130,12 +130,12 @@ const ImageConverter = () => {
     return (
         <>
             {/* container */}
-            <div className='flex flex-col bg-blue-400 min-h-screen gap-4 p-5' onDragEnter={handleDragEnterOutSideDrop}>
+            <div className='flex flex-col mt-20 min-h-screen gap-4 p-5' onDragEnter={handleDragEnterOutSideDrop}>
 
-                <div className='text-3xl font-bold flex justify-center '>JPG To PDF</div>
-                <div className='text-xl flex  justify-center ' >Convert JPG/png to pdf in seconds. Easily adjust orientation and margins</div>
+                <div className='text-3xl font-bold flex justify-center '>Merge PDF</div>
+                <div className='text-xl flex  justify-center ' >Combine PDFs in the order you want with the easiest PDF merger available.</div>
                 <div className='flex justify-center gap-5 '>
-                    <div onClick={() => fileInput.current.click()} className=' text-white text-2xl  cursor-pointer px-4 py-2 bg-red-400 rounded-lg'>Add Images</div>
+                    <div onClick={() => fileInput.current.click()} className=' text-white text-2xl  cursor-pointer px-4 py-2 bg-red-400 rounded-lg'>Add PDF</div>
                     <input
                         type='file'
                         name='image'
@@ -143,7 +143,7 @@ const ImageConverter = () => {
                         onChange={onChange}
                         style={{ display: 'none' }}
                         multiple={true}
-                        accept='image/*'
+                       accept="application/pdf"
                     />
                     {/* Send images to backend  */}
                     {
@@ -177,7 +177,7 @@ const ImageConverter = () => {
                 </div>}
 
                 {/* preview the images and order them */}
-                {files.length > 0 && <div className='flex justify-center items-center '>
+                {files.length > 0 && <div className='flex justify-center items-center mt-10'>
 
                     <DndContext sensors={sensors} onDragEnd={handleDragEnd} collisionDetection={closestCorners} >
                         <SortableContext items={files} strategy={rectSortingStrategy}>
@@ -185,12 +185,12 @@ const ImageConverter = () => {
                                 {
                                     files.map((file, index) => {
 
-                                        return <div key={file.id} className="">
-                                            <div className=' h-5 flex justify-between px-2  rounded-full translate-y-6'>
+                                        return <div key={file.id} className="relative overflow-hidden h-32">
+                                            <div className=' h-5 flex absolute z-50 w-full  justify-between px-2  rounded-full '>
                                                 <div className='w-5 h-5 flex justify-center items-center bg-blue-200 rounded-full'>{index + 1}</div>
                                                 <div className='text-red-500 font-bold cursor-pointer' onClick={() => removeImageBtn(file.id)}>X</div>
                                             </div>
-                                            <ImgList file={file} />
+                                            <PdfList file={file.file} id={file.id} val={index} />
                                         </div>
                                     })
                                 }
@@ -225,4 +225,4 @@ const ImageConverter = () => {
     )
 }
 
-export default ImageConverter
+export default MergePDF
