@@ -101,7 +101,7 @@ const ImageConverter = () => {
         const formData = new FormData()
         files.forEach(file => formData.append("imagesFile", file.file))
         formData.append("startPageNumber",1);
-        formData.append("location","BOTTOM_LEFT_SIDE")
+        formData.append("location","BOTTOM_LEFT")
 
 
         try {
