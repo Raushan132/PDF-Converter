@@ -1,6 +1,9 @@
 import React, { useState, useRef } from 'react';
 import { PageNoPosition } from '../utils/PageNoPosition';
 import PDFPageNo from '../components/PDFPageNo';
+import axios from 'axios';
+import { baseUrl } from '../utils/BaseUrl';
+import UploadingProgress from '../components/UploadingProgress';
 
 const AddPageNo = () => {
   const [pageNoData, setPageNoData] = useState({
@@ -12,13 +15,39 @@ const AddPageNo = () => {
     fromPage: 1,
     toPage: -1,
   });
+
+  const [isUploading, setUploading] = useState(true);
+  const [progressValue, setProgressValue] = useState(50);
+  const [status, setStatus] = useState(1);
+  const [downloadFile, setDownloadFile] = useState(null)
   const [file, setFile] = useState(null);
   const [draggedOver, setDraggedOver] = useState(false);
   const dragCounter = useRef(0);
 
   const pagePositionKeys = Object.keys(PageNoPosition);
 
- 
+  const handleDowanload = () => {
+
+    if (downloadFile == null) return;
+    const fileURL = window.URL.createObjectURL(new Blob([resp.data]));
+    const link = document.createElement('a');
+    link.href = fileURL;
+    link.setAttribute('download', 'generated.pdf'); // Name the file
+    document.body.appendChild(link);
+    link.click(); // Programmatically click the link to trigger download
+    document.body.removeChild(link);
+  }
+
+  const handleCancelBtn = () => {
+    setDownloadFile(null);
+    setFile(null);
+    setStatus(0);
+    setProgressValue(0)
+    setUploading(false)
+
+  }
+
+
 
   const fontSizeOptions = Array.from({ length: 18 }, (_, i) => 10 + i);
 
@@ -53,8 +82,57 @@ const AddPageNo = () => {
     setFile(e.target.files[0]);
   };
 
+  const handleUploadBtn = async () => {
+    if (file == null) return;
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("position", String(pageNoData.pageNoPosition));
+    formData.append("startingPage", String(pageNoData.fromPage));
+    formData.append("fontSize", String(pageNoData.fontSize));
+    formData.append("initialPageNo", String(pageNoData.startingPageNo));
+    formData.append("endPageNo", String(pageNoData.toPage));
+
+    setUploading(true);
+    setStatus(0);
+
+    try {
+      const resp = await axios.post(`${baseUrl}/pdf/addPageNo`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data', // Set the appropriate content type
+        },
+        responseType: 'blob',
+        onUploadProgress: (progressEvent) => {
+          setProgressValue(Math.round(
+            (progressEvent.loaded * 100) / progressEvent.total
+          ))
+        },
+
+      })
+
+      console.log(resp.data)
+      setStatus(1);
+      setDownloadFile(resp.data)
+      const fileURL = window.URL.createObjectURL(new Blob([resp.data]));
+      const link = document.createElement('a');
+      link.href = fileURL;
+      link.setAttribute('download', 'generated.pdf'); // Name the file
+      document.body.appendChild(link);
+      link.click(); // Programmatically click the link to trigger download
+      document.body.removeChild(link); // Clean up
+
+    } catch (error) {
+      console.log("error===================", error);
+      setUploading(false)
+    }
+
+
+
+  }
+
+
   return (
     <div className='flex flex-col md:flex-row justify-between min-h-screen'>
+      {isUploading && <UploadingProgress progressValue={progressValue} status={status} cancelBtn={handleCancelBtn} downloadBtn={handleDowanload} />}
 
       {/* Left Section */}
       <section
@@ -84,7 +162,7 @@ const AddPageNo = () => {
           <div className='relative overflow-hidden h-64 px-4'>
             {file && (
               <>
-                
+
                 <PDFPageNo file={file} id={1} pageNoPosition={pageNoData.pageNoPosition} />
               </>
             )}
@@ -186,7 +264,7 @@ const AddPageNo = () => {
               )}
             </div>
 
-            <button type='button' className='px-4 py-2 rounded-lg shadow-sm shadow-black bg-red-500 text-white text-xl w-full mt-4'>
+            <button type='button' className='px-4 py-2 rounded-lg shadow-sm shadow-black bg-red-500 text-white text-xl w-full mt-4' onClick={handleUploadBtn}>
               Add Page Numbers
             </button>
           </form>
