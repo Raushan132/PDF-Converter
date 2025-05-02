@@ -16,7 +16,7 @@ const AddPageNo = () => {
     toPage: -1,
   });
 
-  const [isUploading, setUploading] = useState(true);
+  const [isUploading, setUploading] = useState(false);
   const [progressValue, setProgressValue] = useState(50);
   const [status, setStatus] = useState(1);
   const [downloadFile, setDownloadFile] = useState(null)
@@ -29,7 +29,7 @@ const AddPageNo = () => {
   const handleDowanload = () => {
 
     if (downloadFile == null) return;
-    const fileURL = window.URL.createObjectURL(new Blob([resp.data]));
+    const fileURL = window.URL.createObjectURL(new Blob([downloadFile]));
     const link = document.createElement('a');
     link.href = fileURL;
     link.setAttribute('download', 'generated.pdf'); // Name the file
@@ -87,9 +87,9 @@ const AddPageNo = () => {
     const formData = new FormData();
     formData.append("file", file);
     formData.append("position", String(pageNoData.pageNoPosition));
-    formData.append("startingPage", String(pageNoData.fromPage));
+    formData.append("startingPage", String(pageNoData.startingPageNo));
     formData.append("fontSize", String(pageNoData.fontSize));
-    formData.append("initialPageNo", String(pageNoData.startingPageNo));
+    formData.append("initialPageNo", String(pageNoData.fromPage));
     formData.append("endPageNo", String(pageNoData.toPage));
 
     setUploading(true);

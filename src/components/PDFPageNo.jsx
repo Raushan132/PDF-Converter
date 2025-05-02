@@ -50,7 +50,7 @@ const PDFPageNo = ({ file, id,pageNoPosition }) => {
     return (
         <div style={style} ref={setNodeRef} {...attributes} {...listeners} className='bg-blue-300 text-center h-64 relative w-[200px]'>
 
-                <div className={`w-3 h-3 bg-red-500 absolute z-50 rounded-full ${pageNoPositionStyle}`}></div>                        
+                <div className={`w-3 h-3 bg-red-500 absolute z-40 rounded-full ${pageNoPositionStyle}`}></div>                        
             <div style={{ touchAction: "none" }} className='flex gap-3 flex-wrap'  >
                 {fileUrl && (
 
