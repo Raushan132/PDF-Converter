@@ -17,39 +17,38 @@ const AddPageNo = () => {
   });
 
   const [isUploading, setUploading] = useState(false);
-  const [progressValue, setProgressValue] = useState(50);
+  const [progressValue, setProgressValue] = useState(0);
   const [status, setStatus] = useState(1);
-  const [downloadFile, setDownloadFile] = useState(null)
+  const [downloadFile, setDownloadFile] = useState(null);
   const [file, setFile] = useState(null);
   const [draggedOver, setDraggedOver] = useState(false);
   const dragCounter = useRef(0);
+  const fileInputRef = useRef(null); // For resetting input value
 
   const pagePositionKeys = Object.keys(PageNoPosition);
+  const fontSizeOptions = Array.from({ length: 18 }, (_, i) => 10 + i);
 
-  const handleDowanload = () => {
-
-    if (downloadFile == null) return;
+  const handleDownload = () => {
+    if (!downloadFile) return;
     const fileURL = window.URL.createObjectURL(new Blob([downloadFile]));
     const link = document.createElement('a');
     link.href = fileURL;
-    link.setAttribute('download', 'generated.pdf'); // Name the file
+    link.setAttribute('download', 'generated.pdf');
     document.body.appendChild(link);
-    link.click(); // Programmatically click the link to trigger download
+    link.click();
     document.body.removeChild(link);
-  }
+  };
 
   const handleCancelBtn = () => {
     setDownloadFile(null);
     setFile(null);
     setStatus(0);
-    setProgressValue(0)
-    setUploading(false)
-
-  }
-
-
-
-  const fontSizeOptions = Array.from({ length: 18 }, (_, i) => 10 + i);
+    setProgressValue(0);
+    setUploading(false);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
 
   const handleDragEnter = (e) => {
     e.preventDefault();
@@ -71,7 +70,6 @@ const AddPageNo = () => {
     e.preventDefault();
     dragCounter.current = 0;
     setDraggedOver(false);
-
     if (e.dataTransfer.files?.length > 0) {
       setFile(e.dataTransfer.files[0]);
       e.dataTransfer.clearData();
@@ -79,11 +77,17 @@ const AddPageNo = () => {
   };
 
   const onChange = (e) => {
-    setFile(e.target.files[0]);
+    const selectedFile = e.target.files[0];
+    if (selectedFile?.type === 'application/pdf') {
+      setFile(selectedFile);
+    } else {
+      alert('Please upload a PDF file');
+    }
   };
 
   const handleUploadBtn = async () => {
-    if (file == null) return;
+    if (!file) return;
+
     const formData = new FormData();
     formData.append("file", file);
     formData.append("position", String(pageNoData.pageNoPosition));
@@ -91,48 +95,50 @@ const AddPageNo = () => {
     formData.append("fontSize", String(pageNoData.fontSize));
     formData.append("initialPageNo", String(pageNoData.fromPage));
     formData.append("endPageNo", String(pageNoData.toPage));
+    formData.append("textFormat", String(pageNoData.textFormat));
+    formData.append("customText", pageNoData.customText);
 
     setUploading(true);
     setStatus(0);
 
     try {
       const resp = await axios.post(`${baseUrl}/pdf/addPageNo`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data', // Set the appropriate content type
-        },
+        headers: { 'Content-Type': 'multipart/form-data' },
         responseType: 'blob',
         onUploadProgress: (progressEvent) => {
-          setProgressValue(Math.round(
-            (progressEvent.loaded * 100) / progressEvent.total
-          ))
-        },
+          const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          setProgressValue(progress);
+        }
+      });
 
-      })
-
-      console.log(resp.data)
       setStatus(1);
-      setDownloadFile(resp.data)
+      setDownloadFile(resp.data);
+
+      // Auto-download file
       const fileURL = window.URL.createObjectURL(new Blob([resp.data]));
       const link = document.createElement('a');
       link.href = fileURL;
-      link.setAttribute('download', 'generated.pdf'); // Name the file
+      link.setAttribute('download', 'generated.pdf');
       document.body.appendChild(link);
-      link.click(); // Programmatically click the link to trigger download
-      document.body.removeChild(link); // Clean up
+      link.click();
+      document.body.removeChild(link);
 
     } catch (error) {
-      console.log("error===================", error);
-      setUploading(false)
+      console.error("Upload failed:", error);
+      setUploading(false);
     }
-
-
-
-  }
-
+  };
 
   return (
     <div className='flex flex-col md:flex-row justify-between min-h-screen'>
-      {isUploading && <UploadingProgress progressValue={progressValue} status={status} cancelBtn={handleCancelBtn} downloadBtn={handleDowanload} />}
+      {isUploading && (
+        <UploadingProgress
+          progressValue={progressValue}
+          status={status}
+          cancelBtn={handleCancelBtn}
+          downloadBtn={handleDownload}
+        />
+      )}
 
       {/* Left Section */}
       <section
@@ -149,11 +155,18 @@ const AddPageNo = () => {
                 Drag and Drop Here
               </div>
             </div>
-            <input type='file' id='pdf_file' onChange={onChange} hidden accept='application/pdf' />
+            <input
+              type='file'
+              ref={fileInputRef}
+              id='pdf_file'
+              onChange={onChange}
+              hidden
+              accept='application/pdf'
+            />
           </form>
 
-          <div className='flex flex-col items-center gap-4'>
-            <h1>Add Page No to PDF</h1>
+          <div className='flex flex-col items-center gap-4 py-4'>
+            <h1 className='text-white text-3xl'>Add Page No to PDF</h1>
             <label htmlFor='pdf_file' className='px-4 py-2 text-2xl text-white bg-red-500 rounded-md cursor-pointer'>
               Add PDF
             </label>
@@ -161,10 +174,7 @@ const AddPageNo = () => {
 
           <div className='relative overflow-hidden h-64 px-4'>
             {file && (
-              <>
-
-                <PDFPageNo file={file} id={1} pageNoPosition={pageNoData.pageNoPosition} />
-              </>
+              <PDFPageNo file={file} id={1} pageNoPosition={pageNoData.pageNoPosition} />
             )}
           </div>
         </div>
@@ -181,14 +191,14 @@ const AddPageNo = () => {
               <label>Position:</label>
               <select
                 className='border-2 border-gray-400'
+                value={pageNoData.pageNoPosition}
                 onChange={(e) =>
                   setPageNoData(prev => ({ ...prev, pageNoPosition: Number(e.target.value) }))
                 }
-                value={pageNoData.pageNoPosition}
               >
-                {pagePositionKeys.map((position, index) => (
-                  <option key={index} value={PageNoPosition[position]}>
-                    {position}
+                {pagePositionKeys.map((key, index) => (
+                  <option key={index} value={PageNoPosition[key]}>
+                    {key}
                   </option>
                 ))}
               </select>
@@ -212,7 +222,9 @@ const AddPageNo = () => {
               <select
                 className='border-2 border-gray-400'
                 value={pageNoData.fontSize}
-                onChange={(e) => setPageNoData(prev => ({ ...prev, fontSize: Number(e.target.value) }))}
+                onChange={(e) =>
+                  setPageNoData(prev => ({ ...prev, fontSize: Number(e.target.value) }))
+                }
               >
                 {fontSizeOptions.map(size => (
                   <option key={size} value={size}>{size}</option>
@@ -228,7 +240,9 @@ const AddPageNo = () => {
                   className='border-2 border-gray-400 w-16'
                   min={1}
                   value={pageNoData.fromPage}
-                  onChange={(e) => setPageNoData(prev => ({ ...prev, fromPage: Number(e.target.value) }))}
+                  onChange={(e) =>
+                    setPageNoData(prev => ({ ...prev, fromPage: Number(e.target.value) }))
+                  }
                 />
                 <span>to</span>
                 <input
@@ -236,10 +250,14 @@ const AddPageNo = () => {
                   className='border-2 border-gray-400 w-16'
                   min={-1}
                   value={pageNoData.toPage}
-                  onChange={(e) => setPageNoData(prev => ({ ...prev, toPage: Number(e.target.value) }))}
+                  onChange={(e) =>
+                    setPageNoData(prev => ({ ...prev, toPage: Number(e.target.value) }))
+                  }
                 />
               </div>
-              <h3 className='text-gray-400'><span className='font-bold'>-1</span> means Last page</h3>
+              <h3 className='text-gray-400'>
+                <span className='font-bold'>-1</span> means Last page
+              </h3>
             </div>
 
             <div className='flex flex-col'>
@@ -247,11 +265,13 @@ const AddPageNo = () => {
               <select
                 className='border-2 border-gray-400'
                 value={pageNoData.textFormat}
-                onChange={(e) => setPageNoData(prev => ({ ...prev, textFormat: Number(e.target.value) }))}
+                onChange={(e) =>
+                  setPageNoData(prev => ({ ...prev, textFormat: Number(e.target.value) }))
+                }
               >
                 <option value={1}>Insert Only Page Number</option>
-                <option value={2}>Page {`{n}`}</option>
-                <option value={3}>Page {`{n}`} of {`{p}`}</option>
+                <option value={2}>Page {'{n}'}</option>
+                <option value={3}>Page {'{n}'} of {'{p}'}</option>
                 <option value={4}>Custom</option>
               </select>
               {pageNoData.textFormat === 4 && (
@@ -259,12 +279,18 @@ const AddPageNo = () => {
                   type='text'
                   className='border-2 border-gray-400 mt-2 w-full'
                   value={pageNoData.customText}
-                  onChange={(e) => setPageNoData(prev => ({ ...prev, customText: e.target.value }))}
+                  onChange={(e) =>
+                    setPageNoData(prev => ({ ...prev, customText: e.target.value }))
+                  }
                 />
               )}
             </div>
 
-            <button type='button' className='px-4 py-2 rounded-lg shadow-sm shadow-black bg-red-500 text-white text-xl w-full mt-4' onClick={handleUploadBtn}>
+            <button
+              type='button'
+              className='px-4 py-2 rounded-lg shadow-sm shadow-black bg-red-500 text-white text-xl w-full mt-4'
+              onClick={handleUploadBtn}
+            >
               Add Page Numbers
             </button>
           </form>
