@@ -6,19 +6,44 @@ import { PageNoPosition } from '../utils/PageNoPosition';
 import axios, { Axios } from 'axios';
 import { baseUrl } from '../utils/BaseUrl';
 import PdfList from '../components/PDFList';
+import UploadingProgress from '../components/UploadingProgress';
 
 const MergePDF = () => {
+    const [isUploading, setUploading] = useState(false);
+    const [progressValue, setProgressValue] = useState(0);
+    const [status, setStatus] = useState(1);
+    const [downloadFile, setDownloadFile] = useState(null);
     const fileInput = useRef(null)
     const [files, setFiles] = useState([]);
     const [isAddPageNo, setIsAddPageNo] = useState(false);
     const [pageNoData, setPageNoData] = useState({ startingPageNo: 1, pageNoPosition: PageNoPosition.TOP_LEFT })
     const [dragActive, setDragActive] = useState(false);
     const [dropableStyle, setDropableStyle] = useState('-z-10')
-    
+
 
     const pagePosition = Object.keys(PageNoPosition);
 
     console.log(pageNoData)
+
+    const handleDownload = () => {
+        if (!downloadFile) return;
+        const fileURL = window.URL.createObjectURL(new Blob([downloadFile]));
+        const link = document.createElement('a');
+        link.href = fileURL;
+        link.setAttribute('download', 'generated.pdf');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      };
+    
+      const handleCancelBtn = () => {
+        setDownloadFile(null);
+        setFiles([]);
+        setStatus(0);
+        setProgressValue(0);
+        setUploading(false);
+        
+      };
 
     const onChange = async e => {
         const newFiles = Array.from(e.target.files).map((file, index) => ({
@@ -101,16 +126,25 @@ const MergePDF = () => {
         const formData = new FormData()
         files.forEach(file => formData.append("files", file.file))
 
+        setUploading(true);
+        setStatus(0);
 
         try {
             const resp = await axios.post(`${baseUrl}/pdf/merge`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data', // Set the appropriate content type
                 },
-                responseType: 'blob'
+                responseType: 'blob',
+                onUploadProgress: (progressEvent) => {
+                    const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                    setProgressValue(progress);
+                }
             })
 
-            console.log(resp.data)
+           
+            setStatus(1);
+            setDownloadFile(resp.data);
+
             const fileURL = window.URL.createObjectURL(new Blob([resp.data]));
             const link = document.createElement('a');
             link.href = fileURL;
@@ -121,6 +155,7 @@ const MergePDF = () => {
 
         } catch (error) {
             console.log("error===================", error);
+            setUploading(false);
         }
 
 
@@ -131,6 +166,16 @@ const MergePDF = () => {
         <>
             {/* container */}
             <div className='flex flex-col mt-20 min-h-screen gap-4 p-5' onDragEnter={handleDragEnterOutSideDrop}>
+
+                {isUploading && (
+                    <UploadingProgress
+                        progressValue={progressValue}
+                        status={status}
+                        cancelBtn={handleCancelBtn}
+                        downloadBtn={handleDownload}
+                    />
+                )}
+
 
                 <div className='text-3xl font-bold flex justify-center '>Merge PDF</div>
                 <div className='text-xl flex  justify-center ' >Combine PDFs in the order you want with the easiest PDF merger available.</div>
@@ -143,7 +188,7 @@ const MergePDF = () => {
                         onChange={onChange}
                         style={{ display: 'none' }}
                         multiple={true}
-                       accept="application/pdf"
+                        accept="application/pdf"
                     />
                     {/* Send images to backend  */}
                     {
@@ -186,7 +231,7 @@ const MergePDF = () => {
                                     files.map((file, index) => {
 
                                         return <div key={file.id} className="relative overflow-hidden h-32">
-                                            <div className=' h-5 flex absolute z-50 w-full  justify-between px-2  rounded-full '>
+                                            <div className=' h-5 flex absolute z-40 w-full  justify-between px-2  rounded-full '>
                                                 <div className='w-5 h-5 flex justify-center items-center bg-blue-200 rounded-full'>{index + 1}</div>
                                                 <div className='text-red-500 font-bold cursor-pointer' onClick={() => removeImageBtn(file.id)}>X</div>
                                             </div>
