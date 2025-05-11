@@ -39,7 +39,7 @@ const ImageConverter = () => {
 
     const handleCancelBtn = () => {
         setDownloadFile(null);
-        setFile(null);
+        setFiles([]);
         setStatus(0);
         setProgressValue(0);
         setUploading(false);

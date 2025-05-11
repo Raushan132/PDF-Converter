@@ -198,44 +198,26 @@ const MergePDF = () => {
 
                 </div>
 
-                {/* add page no. */}
-                {files.length > 0 && <div className='flex flex-col justify-center items-center gap-2'>
-                    <div><input type='checkbox' defaultChecked={isAddPageNo} onChange={() => setIsAddPageNo(!isAddPageNo)} /> Add Page no </div>
-
-                    {isAddPageNo && <>
-                        <div className='flex w-1/4 justify-between'>
-                            <label htmlFor=' startingPageNo'>Starting Page No:</label>
-                            <input type="number" placeholder='Starting page No' onChange={(e) => setPageNoData(prev => ({ ...prev, startingPageNo: e.target.value }))} value={pageNoData.startingPageNo} />
-                        </div>
-                        <div className='flex w-1/4 justify-between'>
-                            <label htmlFor='Page_No_Position'>Page No Position:</label>
-                            <select onChange={(e) => setPageNoData(prev => ({ ...prev, pageNoPosition: PageNoPosition[e.target.value] }))} >
-                                {
-                                    pagePosition.map((position, index) => <option key={index} value={position}>
-                                        {position}
-                                    </option>)
-                                }
-                            </select>
-                        </div>
-                    </>
-                    }
-                </div>}
+             
 
                 {/* preview the images and order them */}
                 {files.length > 0 && <div className='flex justify-center items-center mt-10'>
 
                     <DndContext sensors={sensors} onDragEnd={handleDragEnd} collisionDetection={closestCorners} >
                         <SortableContext items={files} strategy={rectSortingStrategy}>
-                            <div className='bg-gray-300 px-5 py-2 grid justify-center items-center  grid-cols-5 gap-3'>
+                            <div className='bg-gray-300 max-h-96 overflow-y-auto px-5 py-2 grid justify-center items-center  grid-cols-5 gap-3'>
                                 {
                                     files.map((file, index) => {
 
-                                        return <div key={file.id} className="relative overflow-hidden h-32">
+                                        return <div>
+                                         <div key={file.id} className="relative overflow-hidden h-32">
                                             <div className=' h-5 flex absolute z-40 w-full  justify-between px-2  rounded-full '>
                                                 <div className='w-5 h-5 flex justify-center items-center bg-blue-200 rounded-full'>{index + 1}</div>
                                                 <div className='text-red-500 font-bold cursor-pointer' onClick={() => removeImageBtn(file.id)}>X</div>
                                             </div>
                                             <PdfList file={file.file} id={file.id} val={index} />
+                                        </div>
+                                            <div className='text-center'>{file.file.name.length<8?file.file.name: file.file.name.substring(0,8)+"..."}</div>
                                         </div>
                                     })
                                 }

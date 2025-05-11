@@ -95,8 +95,8 @@ const AddPageNo = () => {
     formData.append("fontSize", String(pageNoData.fontSize));
     formData.append("initialPageNo", String(pageNoData.fromPage));
     formData.append("endPageNo", String(pageNoData.toPage));
-    formData.append("textFormat", String(pageNoData.textFormat));
-    formData.append("customText", pageNoData.customText);
+    // formData.append("textFormat", String(pageNoData.textFormat));
+    // formData.append("customText", pageNoData.customText);
 
     setUploading(true);
     setStatus(0);
