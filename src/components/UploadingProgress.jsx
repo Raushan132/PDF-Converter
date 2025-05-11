@@ -1,4 +1,5 @@
 import React from 'react'
+import ProgressBar from './ProgressBar'
 
 const UploadingProgress = ({ setUploading, progressValue, status, cancelBtn, downloadBtn }) => {
 
@@ -10,11 +11,7 @@ const UploadingProgress = ({ setUploading, progressValue, status, cancelBtn, dow
                 {status == 0 && <div>
                     {progressValue < 100 && <div>Uploading</div>}
                     {progressValue > 99 && <div>Processing</div>}
-                    <progress
-                        value={progressValue}
-                        max={100}
-                        className="w-full h-4 rounded-lg overflow-hidden [&::-webkit-progress-bar]:bg-gray-200 [&::-webkit-progress-value]:bg-blue-500"
-                    />
+                    <ProgressBar percent={progressValue} color="green" />
                 </div>
 
                 }
