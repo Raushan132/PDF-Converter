@@ -12,6 +12,8 @@ function App() {
 
   return (
     <>
+    <div className='max-h-screen overflow-y-auto'>
+      
        <Header />
        <Routes>
         <Route path="/" element={<Home />} />
@@ -21,6 +23,7 @@ function App() {
         <Route path="/pageNo" element={<AddPageNo />} />
        </Routes>
 
+    </div>
     </>
   )
 }

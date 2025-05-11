@@ -5,20 +5,49 @@ import { arrayMove, horizontalListSortingStrategy, rectSortingStrategy, Sortable
 import { PageNoPosition } from '../utils/PageNoPosition';
 import axios from 'axios';
 import { baseUrl } from '../utils/BaseUrl';
+import UploadingProgress from '../components/UploadingProgress';
 
 const ImageConverter = () => {
 
+    const [isUploading, setUploading] = useState(false);
+    const [progressValue, setProgressValue] = useState(0);
+    const [status, setStatus] = useState(1);
+    const [downloadFile, setDownloadFile] = useState(null);
     const fileInput = useRef(null)
     const [files, setFiles] = useState([]);
     const [isAddPageNo, setIsAddPageNo] = useState(false);
     const [pageNoData, setPageNoData] = useState({ startingPageNo: 1, pageNoPosition: PageNoPosition.TOP_LEFT })
     const [dragActive, setDragActive] = useState(false);
     const [dropableStyle, setDropableStyle] = useState('-z-10')
-    
+
 
     const pagePosition = Object.keys(PageNoPosition);
 
     console.log(pageNoData)
+
+
+    const handleDownload = () => {
+        if (!downloadFile) return;
+        const fileURL = window.URL.createObjectURL(new Blob([downloadFile]));
+        const link = document.createElement('a');
+        link.href = fileURL;
+        link.setAttribute('download', 'generated.pdf');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
+    const handleCancelBtn = () => {
+        setDownloadFile(null);
+        setFiles([]);
+        setStatus(0);
+        setProgressValue(0);
+        setUploading(false);
+        if (fileInput.current) {
+            fileInput.current.value = '';
+        }
+    };
+
 
     const onChange = async e => {
         const newFiles = Array.from(e.target.files).map((file, index) => ({
@@ -99,17 +128,27 @@ const ImageConverter = () => {
 
     const handleUploadBtn = async () => {
         const formData = new FormData()
-        files.forEach(file => formData.append("imagesFile", file.file))
-        formData.append("startPageNumber",1);
-        formData.append("location","BOTTOM_LEFT")
+        files.forEach(file => formData.append("files", file.file))
+        // formData.append("startPageNumber",1);
+        // formData.append("location","BOTTOM_LEFT_SIDE")
 
+        setUploading(true);
+        setStatus(0);
 
         try {
-            const resp = await axios.post(`${baseUrl}/imgtopdf/generatepdf`, formData, {
+            const resp = await axios.post(`${baseUrl}/pdf/image-to-pdf`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data', // Set the appropriate content type
                 },
+                responseType: 'blob',
+                onUploadProgress: (progressEvent) => {
+                    const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                    setProgressValue(progress);
+                }
             })
+
+            setStatus(1);
+            setDownloadFile(resp.data);
 
             const fileURL = window.URL.createObjectURL(new Blob([resp.data]));
             const link = document.createElement('a');
@@ -121,6 +160,7 @@ const ImageConverter = () => {
 
         } catch (error) {
             console.log("error===================", error);
+            setUploading(false);
         }
 
 
@@ -131,6 +171,15 @@ const ImageConverter = () => {
         <>
             {/* container */}
             <div className='flex flex-col bg-blue-400 min-h-screen gap-4 p-5' onDragEnter={handleDragEnterOutSideDrop}>
+
+                {isUploading && (
+                    <UploadingProgress
+                        progressValue={progressValue}
+                        status={status}
+                        cancelBtn={handleCancelBtn}
+                        downloadBtn={handleDownload}
+                    />
+                )}
 
                 <div className='text-3xl font-bold flex justify-center '>JPG To PDF</div>
                 <div className='text-xl flex  justify-center ' >Convert JPG/png to pdf in seconds. Easily adjust orientation and margins</div>
