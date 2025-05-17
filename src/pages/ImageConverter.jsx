@@ -28,13 +28,7 @@ const ImageConverter = () => {
 
     const handleDownload = () => {
         if (!downloadFile) return;
-        const fileURL = window.URL.createObjectURL(new Blob([downloadFile]));
-        const link = document.createElement('a');
-        link.href = fileURL;
-        link.setAttribute('download', 'generated.pdf');
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        window.location.href = `${baseUrl}/pdf/download/${downloadFile}`;
     };
 
     const handleCancelBtn = () => {
@@ -140,23 +134,24 @@ const ImageConverter = () => {
                 headers: {
                     'Content-Type': 'multipart/form-data', // Set the appropriate content type
                 },
-                responseType: 'blob',
+                // responseType: 'blob',
                 onUploadProgress: (progressEvent) => {
                     const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
                     setProgressValue(progress);
                 }
             })
 
+            window.location.href = `${baseUrl}/pdf/download/${resp.data.fileName}`;
             setStatus(1);
-            setDownloadFile(resp.data);
+            setDownloadFile(resp.data.fileName);
 
-            const fileURL = window.URL.createObjectURL(new Blob([resp.data]));
-            const link = document.createElement('a');
-            link.href = fileURL;
-            link.setAttribute('download', 'generated.pdf'); // Name the file
-            document.body.appendChild(link);
-            link.click(); // Programmatically click the link to trigger download
-            document.body.removeChild(link); // Clean up
+            // const fileURL = window.URL.createObjectURL(new Blob([resp.data]));
+            // const link = document.createElement('a');
+            // link.href = fileURL;
+            // link.setAttribute('download', 'generated.pdf'); // Name the file
+            // document.body.appendChild(link);
+            // link.click(); // Programmatically click the link to trigger download
+            // document.body.removeChild(link); // Clean up
 
         } catch (error) {
             console.log("error===================", error);

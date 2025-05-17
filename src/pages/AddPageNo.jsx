@@ -30,13 +30,7 @@ const AddPageNo = () => {
 
   const handleDownload = () => {
     if (!downloadFile) return;
-    const fileURL = window.URL.createObjectURL(new Blob([downloadFile]));
-    const link = document.createElement('a');
-    link.href = fileURL;
-    link.setAttribute('download', 'generated.pdf');
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    window.location.href = `${baseUrl}/pdf/download/${downloadFile}`;
   };
 
   const handleCancelBtn = () => {
@@ -104,24 +98,26 @@ const AddPageNo = () => {
     try {
       const resp = await axios.post(`${baseUrl}/pdf/addPageNo`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
-        responseType: 'blob',
+        // responseType: 'blob',
         onUploadProgress: (progressEvent) => {
           const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
           setProgressValue(progress);
         }
       });
 
+      window.location.href = `${baseUrl}/pdf/download/${resp.data.fileName}`;
+
       setStatus(1);
-      setDownloadFile(resp.data);
+      setDownloadFile(resp.data.fileName);
 
       // Auto-download file
-      const fileURL = window.URL.createObjectURL(new Blob([resp.data]));
-      const link = document.createElement('a');
-      link.href = fileURL;
-      link.setAttribute('download', 'generated.pdf');
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      // const fileURL = window.URL.createObjectURL(new Blob([resp.data]));
+      // const link = document.createElement('a');
+      // link.href = fileURL;
+      // link.setAttribute('download', 'generated.pdf');
+      // document.body.appendChild(link);
+      // link.click();
+      // document.body.removeChild(link);
 
     } catch (error) {
       console.error("Upload failed:", error);
