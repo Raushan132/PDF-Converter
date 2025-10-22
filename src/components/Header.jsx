@@ -9,7 +9,7 @@ const Header = () => {
             <div className='font-bold text-2xl uppercase'>Online PDF</div>
             </Link>
             
-            <div className='flex md:flex-1'>
+             <div className='flex'>{/*md:flex-1 */}
                 <nav className='flex gap-10 self-start'>
                     <Link to={'/merge'} className='font-semibold'>MERGE PDF</Link>
                     <Link className='font-semibold'>SPLIT PDF</Link>
@@ -17,12 +17,12 @@ const Header = () => {
                     <Link to={'/image-convert'} className='font-semibold'>Img To PDF</Link>
                 </nav>
             </div>
-            <div>
+            {/* <div>
                 <div className='flex gap-10'>
                     <button className='px-4 py-2 bg-blue-500 rounded-lg text-white font-bold'>Login</button>
                     <button className='px-4 py-2 bg-green-500 rounded-lg text-white font-bold'>Sign up</button>
                 </div>
-            </div>
+            </div> */}
         </div>
     </>
   )

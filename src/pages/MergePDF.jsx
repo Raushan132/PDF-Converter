@@ -7,6 +7,8 @@ import axios, { Axios } from 'axios';
 import { baseUrl } from '../utils/BaseUrl';
 import PdfList from '../components/PDFList';
 import UploadingProgress from '../components/UploadingProgress';
+import { Helmet } from 'react-helmet-async';
+import keywords_1 from '../utils/SEO_Keywords';
 
 const MergePDF = () => {
     const [isUploading, setUploading] = useState(false);
@@ -28,16 +30,16 @@ const MergePDF = () => {
     const handleDownload = () => {
         if (!downloadFile) return;
         window.location.href = `${baseUrl}/pdf/download/${downloadFile}`;
-      };
-    
-      const handleCancelBtn = () => {
+    };
+
+    const handleCancelBtn = () => {
         setDownloadFile(null);
         setFiles([]);
         setStatus(0);
         setProgressValue(0);
         setUploading(false);
-        
-      };
+
+    };
 
     const onChange = async e => {
         const newFiles = Array.from(e.target.files).map((file, index) => ({
@@ -159,6 +161,13 @@ const MergePDF = () => {
 
     return (
         <>
+            <Helmet>
+                <title>Merge PDF Online - Free & Unlimited | OnlinePDF.in</title>
+                <meta name="description" content="Merge PDF files for free online. No file limits, no login, unlimited usage. Combine multiple PDFs into one securely and quickly." />
+                <meta name="keywords" content={keywords_1[0]+" merge pdf, combine pdf online, free pdf merger, unlimited pdf merge, ilovepdf merge alternative, onlinepdf.in"} />
+                <meta property="og:title" content="Free PDF Merger - OnlinePDF.in" />
+                <meta property="og:description" content="Join PDF files together instantly. No watermarks, no restrictions. The best alternative to iLovePDF." />
+            </Helmet>
             {/* container */}
             <div className='flex flex-col mt-20 min-h-screen gap-4 p-5' onDragEnter={handleDragEnterOutSideDrop}>
 
@@ -193,7 +202,7 @@ const MergePDF = () => {
 
                 </div>
 
-             
+
 
                 {/* preview the images and order them */}
                 {files.length > 0 && <div className='flex justify-center items-center mt-10'>
@@ -205,14 +214,14 @@ const MergePDF = () => {
                                     files.map((file, index) => {
 
                                         return <div>
-                                         <div key={file.id} className="relative overflow-hidden h-32">
-                                            <div className=' h-5 flex absolute z-40 w-full  justify-between px-2  rounded-full '>
-                                                <div className='w-5 h-5 flex justify-center items-center bg-blue-200 rounded-full'>{index + 1}</div>
-                                                <div className='text-red-500 font-bold cursor-pointer' onClick={() => removeImageBtn(file.id)}>X</div>
+                                            <div key={file.id} className="relative overflow-hidden h-32">
+                                                <div className=' h-5 flex absolute z-40 w-full  justify-between px-2  rounded-full '>
+                                                    <div className='w-5 h-5 flex justify-center items-center bg-blue-200 rounded-full'>{index + 1}</div>
+                                                    <div className='text-red-500 font-bold cursor-pointer' onClick={() => removeImageBtn(file.id)}>X</div>
+                                                </div>
+                                                <PdfList file={file.file} id={file.id} val={index} />
                                             </div>
-                                            <PdfList file={file.file} id={file.id} val={index} />
-                                        </div>
-                                            <div className='text-center'>{file.file.name.length<8?file.file.name: file.file.name.substring(0,8)+"..."}</div>
+                                            <div className='text-center'>{file.file.name.length < 8 ? file.file.name : file.file.name.substring(0, 8) + "..."}</div>
                                         </div>
                                     })
                                 }

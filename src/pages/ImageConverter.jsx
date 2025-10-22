@@ -6,6 +6,8 @@ import { PageNoPosition } from '../utils/PageNoPosition';
 import axios from 'axios';
 import { baseUrl } from '../utils/BaseUrl';
 import UploadingProgress from '../components/UploadingProgress';
+import { Helmet } from 'react-helmet-async';
+import keywords_1 from '../utils/SEO_Keywords';
 
 const ImageConverter = () => {
 
@@ -164,6 +166,13 @@ const ImageConverter = () => {
 
     return (
         <>
+            <Helmet>
+                <title>Convert Image to PDF - Free JPG/PNG to PDF | OnlinePDF.in</title>
+                <meta name="description" content="Convert JPG, PNG, and other images to PDF online. No file limits, no watermark, no registration. Fast, secure, and 100% free." />
+                <meta name="keywords" content={keywords_1[0]+"image to pdf, jpg to pdf, png to pdf, convert image to pdf, image2pdf, ilovepdf image to pdf, onlinepdf.in"} />
+                <meta property="og:title" content="Image to PDF Converter - OnlinePDF.in" />
+                <meta property="og:description" content="Free and unlimited tool to convert images to PDF online. Secure, simple, and fast alternative to iLovePDF." />
+            </Helmet>
             {/* container */}
             <div className='flex flex-col bg-blue-400 min-h-screen gap-4 p-5' onDragEnter={handleDragEnterOutSideDrop}>
 

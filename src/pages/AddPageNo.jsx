@@ -4,6 +4,8 @@ import PDFPageNo from '../components/PDFPageNo';
 import axios from 'axios';
 import { baseUrl } from '../utils/BaseUrl';
 import UploadingProgress from '../components/UploadingProgress';
+import { Helmet } from 'react-helmet-async';
+import keywords_1 from '../utils/SEO_Keywords';
 
 const AddPageNo = () => {
   const [pageNoData, setPageNoData] = useState({
@@ -89,8 +91,8 @@ const AddPageNo = () => {
     formData.append("fontSize", String(pageNoData.fontSize));
     formData.append("initialPageNo", String(pageNoData.fromPage));
     formData.append("endPageNo", String(pageNoData.toPage));
-    // formData.append("textFormat", String(pageNoData.textFormat));
-    // formData.append("customText", pageNoData.customText);
+    formData.append("textFormat", String(pageNoData.textFormat));
+    formData.append("customText", pageNoData.customText);
 
     setUploading(true);
     setStatus(0);
@@ -126,173 +128,182 @@ const AddPageNo = () => {
   };
 
   return (
-    <div className='flex flex-col md:flex-row justify-between min-h-screen'>
-      {isUploading && (
-        <UploadingProgress
-          progressValue={progressValue}
-          status={status}
-          cancelBtn={handleCancelBtn}
-          downloadBtn={handleDownload}
-        />
-      )}
+    <>
+      <Helmet>
+        <title>Add Page Numbers to PDF Online - Free & Unlimited | OnlinePDF.in</title>
+        <meta name="description" content="Add page numbers to your PDF files online for free. Unlimited use, no login or watermarks. Works fast on all devices." />
+        <meta name="keywords" content={keywords_1[0]+"add page numbers to pdf, pdf page numbering, number pdf pages online, free pdf numbering tool, ilovepdf add page numbers, onlinepdf.in"} />
+        <meta property="og:title" content="Add Page Numbers to PDF - OnlinePDF.in" />
+        <meta property="og:description" content="Free and unlimited PDF page numbering tool. Best iLovePDF alternative with no size limits or signup needed." />
+      </Helmet>
+      <div className='flex flex-col md:flex-row justify-between min-h-screen'>
+        {isUploading && (
+          <UploadingProgress
+            progressValue={progressValue}
+            status={status}
+            cancelBtn={handleCancelBtn}
+            downloadBtn={handleDownload}
+          />
+        )}
 
-      {/* Left Section */}
-      <section
-        className='bg-blue-400 flex w-full md:w-3/4 relative'
-        onDragEnter={handleDragEnter}
-        onDragLeave={handleDragLeave}
-        onDragOver={handleDragOver}
-        onDrop={handleDrop}
-      >
-        <div className='w-full'>
-          <form>
-            <div className={`w-full absolute z-10 top-0 left-0 h-full bg-blue-200/70 flex justify-center items-center ${draggedOver ? '' : 'hidden'}`}>
-              <div className='border-2 border-dotted border-black px-20 py-20 text-center'>
-                Drag and Drop Here
+        {/* Left Section */}
+        <section
+          className='bg-blue-400 flex w-full md:w-3/4 relative'
+          onDragEnter={handleDragEnter}
+          onDragLeave={handleDragLeave}
+          onDragOver={handleDragOver}
+          onDrop={handleDrop}
+        >
+          <div className='w-full'>
+            <form>
+              <div className={`w-full absolute z-10 top-0 left-0 h-full bg-blue-200/70 flex justify-center items-center ${draggedOver ? '' : 'hidden'}`}>
+                <div className='border-2 border-dotted border-black px-20 py-20 text-center'>
+                  Drag and Drop Here
+                </div>
               </div>
-            </div>
-            <input
-              type='file'
-              ref={fileInputRef}
-              id='pdf_file'
-              onChange={onChange}
-              hidden
-              accept='application/pdf'
-            />
-          </form>
-
-          <div className='flex flex-col items-center gap-4 py-4'>
-            <h1 className='text-white text-3xl'>Add Page No to PDF</h1>
-            <label htmlFor='pdf_file' className='px-4 py-2 text-2xl text-white bg-red-500 rounded-md cursor-pointer'>
-              Add PDF
-            </label>
-          </div>
-
-          <div className='relative overflow-hidden h-64 px-4'>
-            {file && (
-              <PDFPageNo file={file} id={1} pageNoPosition={pageNoData.pageNoPosition} />
-            )}
-          </div>
-        </div>
-      </section>
-
-      {/* Right Section */}
-      <section className='flex justify-center font-semibold w-full md:w-1/4 shadow-md shadow-black p-4 bg-white'>
-        <div className='w-full'>
-          <h1 className='text-center text-3xl py-4'>Page Number Options</h1>
-          <hr className='border-black mb-6' />
-
-          <form className='flex flex-col gap-6'>
-            <div className='flex gap-2 items-center'>
-              <label>Position:</label>
-              <select
-                className='border-2 border-gray-400'
-                value={pageNoData.pageNoPosition}
-                onChange={(e) =>
-                  setPageNoData(prev => ({ ...prev, pageNoPosition: Number(e.target.value) }))
-                }
-              >
-                {pagePositionKeys.map((key, index) => (
-                  <option key={index} value={PageNoPosition[key]}>
-                    {key}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className='flex gap-2 items-center'>
-              <label>First Number:</label>
               <input
-                type='number'
-                className='w-16 border-2 border-gray-400 px-2'
-                min={1}
-                value={pageNoData.startingPageNo}
-                onChange={(e) =>
-                  setPageNoData(prev => ({ ...prev, startingPageNo: Number(e.target.value) }))
-                }
+                type='file'
+                ref={fileInputRef}
+                id='pdf_file'
+                onChange={onChange}
+                hidden
+                accept='application/pdf'
               />
+            </form>
+
+            <div className='flex flex-col items-center gap-4 py-4'>
+              <h1 className='text-white text-3xl'>Add Page No to PDF</h1>
+              <label htmlFor='pdf_file' className='px-4 py-2 text-2xl text-white bg-red-500 rounded-md cursor-pointer'>
+                Add PDF
+              </label>
             </div>
 
-            <div className='flex gap-2 items-center'>
-              <label>Font Size:</label>
-              <select
-                className='border-2 border-gray-400'
-                value={pageNoData.fontSize}
-                onChange={(e) =>
-                  setPageNoData(prev => ({ ...prev, fontSize: Number(e.target.value) }))
-                }
-              >
-                {fontSizeOptions.map(size => (
-                  <option key={size} value={size}>{size}</option>
-                ))}
-              </select>
-            </div>
-
-            <div className='flex flex-col gap-2'>
-              <label>Which pages do you want to number?</label>
-              <div className='flex gap-2'>
-                <input
-                  type='number'
-                  className='border-2 border-gray-400 w-16'
-                  min={1}
-                  value={pageNoData.fromPage}
-                  onChange={(e) =>
-                    setPageNoData(prev => ({ ...prev, fromPage: Number(e.target.value) }))
-                  }
-                />
-                <span>to</span>
-                <input
-                  type='number'
-                  className='border-2 border-gray-400 w-16'
-                  min={-1}
-                  value={pageNoData.toPage}
-                  onChange={(e) =>
-                    setPageNoData(prev => ({ ...prev, toPage: Number(e.target.value) }))
-                  }
-                />
-              </div>
-              <h3 className='text-gray-400'>
-                <span className='font-bold'>-1</span> means Last page
-              </h3>
-            </div>
-
-            <div className='flex flex-col'>
-              <label>Text Format:</label>
-              <select
-                className='border-2 border-gray-400'
-                value={pageNoData.textFormat}
-                onChange={(e) =>
-                  setPageNoData(prev => ({ ...prev, textFormat: Number(e.target.value) }))
-                }
-              >
-                <option value={1}>Insert Only Page Number</option>
-                <option value={2}>Page {'{n}'}</option>
-                <option value={3}>Page {'{n}'} of {'{p}'}</option>
-                <option value={4}>Custom</option>
-              </select>
-              {pageNoData.textFormat === 4 && (
-                <input
-                  type='text'
-                  className='border-2 border-gray-400 mt-2 w-full'
-                  value={pageNoData.customText}
-                  onChange={(e) =>
-                    setPageNoData(prev => ({ ...prev, customText: e.target.value }))
-                  }
-                />
+            <div className='relative overflow-hidden h-64 px-4'>
+              {file && (
+                <PDFPageNo file={file} id={1} pageNoPosition={pageNoData.pageNoPosition} />
               )}
             </div>
+          </div>
+        </section>
 
-            <button
-              type='button'
-              className='px-4 py-2 rounded-lg shadow-sm shadow-black bg-red-500 text-white text-xl w-full mt-4'
-              onClick={handleUploadBtn}
-            >
-              Add Page Numbers
-            </button>
-          </form>
-        </div>
-      </section>
-    </div>
+        {/* Right Section */}
+        <section className='flex justify-center font-semibold w-full md:w-1/4 shadow-md shadow-black p-4 bg-white'>
+          <div className='w-full'>
+            <h1 className='text-center text-3xl py-4'>Page Number Options</h1>
+            <hr className='border-black mb-6' />
+
+            <form className='flex flex-col gap-6'>
+              <div className='flex gap-2 items-center'>
+                <label>Position:</label>
+                <select
+                  className='border-2 border-gray-400'
+                  value={pageNoData.pageNoPosition}
+                  onChange={(e) =>
+                    setPageNoData(prev => ({ ...prev, pageNoPosition: Number(e.target.value) }))
+                  }
+                >
+                  {pagePositionKeys.map((key, index) => (
+                    <option key={index} value={PageNoPosition[key]}>
+                      {key}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className='flex gap-2 items-center'>
+                <label>First Number:</label>
+                <input
+                  type='number'
+                  className='w-16 border-2 border-gray-400 px-2'
+                  min={1}
+                  value={pageNoData.startingPageNo}
+                  onChange={(e) =>
+                    setPageNoData(prev => ({ ...prev, startingPageNo: Number(e.target.value) }))
+                  }
+                />
+              </div>
+
+              <div className='flex gap-2 items-center'>
+                <label>Font Size:</label>
+                <select
+                  className='border-2 border-gray-400'
+                  value={pageNoData.fontSize}
+                  onChange={(e) =>
+                    setPageNoData(prev => ({ ...prev, fontSize: Number(e.target.value) }))
+                  }
+                >
+                  {fontSizeOptions.map(size => (
+                    <option key={size} value={size}>{size}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className='flex flex-col gap-2'>
+                <label>Which pages do you want to number?</label>
+                <div className='flex gap-2'>
+                  <input
+                    type='number'
+                    className='border-2 border-gray-400 w-16'
+                    min={1}
+                    value={pageNoData.fromPage}
+                    onChange={(e) =>
+                      setPageNoData(prev => ({ ...prev, fromPage: Number(e.target.value) }))
+                    }
+                  />
+                  <span>to</span>
+                  <input
+                    type='number'
+                    className='border-2 border-gray-400 w-16'
+                    min={-1}
+                    value={pageNoData.toPage}
+                    onChange={(e) =>
+                      setPageNoData(prev => ({ ...prev, toPage: Number(e.target.value) }))
+                    }
+                  />
+                </div>
+                <h3 className='text-gray-400'>
+                  <span className='font-bold'>-1</span> means Last page
+                </h3>
+              </div>
+
+              <div className='flex flex-col'>
+                <label>Text Format:</label>
+                <select
+                  className='border-2 border-gray-400'
+                  value={pageNoData.textFormat}
+                  onChange={(e) =>
+                    setPageNoData(prev => ({ ...prev, textFormat: Number(e.target.value) }))
+                  }
+                >
+                  <option value={1}>Insert Only Page Number</option>
+                  <option value={2}>Page {'{n}'}</option>
+                  <option value={3}>Page {'{n}'} of {'{p}'}</option>
+                  <option value={4}>Custom</option>
+                </select>
+                {pageNoData.textFormat === 4 && (
+                  <input
+                    type='text'
+                    className='border-2 border-gray-400 mt-2 w-full'
+                    value={pageNoData.customText}
+                    onChange={(e) =>
+                      setPageNoData(prev => ({ ...prev, customText: e.target.value }))
+                    }
+                  />
+                )}
+              </div>
+
+              <button
+                type='button'
+                className='px-4 py-2 rounded-lg shadow-sm shadow-black bg-red-500 text-white text-xl w-full mt-4'
+                onClick={handleUploadBtn}
+              >
+                Add Page Numbers
+              </button>
+            </form>
+          </div>
+        </section>
+      </div>
+    </>
   );
 };
 
